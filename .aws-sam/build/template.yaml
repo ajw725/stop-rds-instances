@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: rds-shutoff
+Transform:
+- AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    CodeUri: ./dist
+    MemorySize: 128
+    Timeout: 15
+Resources:
+  StopRDSInstances:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: A Lambda function that stops RDS instances on a schedule.
+      Runtime: nodejs12.x
+      Handler: stop-instances.lambdaHandler
+      Events:
+        CloudWatchEvent:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 8 ? * 1 *)
+      Policies:
+      - Statement:
+        - Sid: StopRDSInstances
+          Effect: Allow
+          Action: rds:StopDBInstance
+          Resource: '*'
+      CodeUri: StopRDSInstances
